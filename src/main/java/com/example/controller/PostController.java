@@ -10,6 +10,7 @@ import com.example.search.mq.PostMqIndexMessage;
 import com.example.util.ValidationUtil;
 import com.example.vo.CommentVo;
 import com.example.vo.PostVo;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class PostController extends BaseController{
@@ -73,7 +76,7 @@ public class PostController extends BaseController{
     public Result collectionAdd(Long pid) {
         Post post = postService.getById(pid);
 
-        Assert.isTrue(post != null, "改帖子已被删除");
+        Assert.isTrue(post != null, "该帖子已被删除");
         int count = collectionService.count(new QueryWrapper<UserCollection>()
                 .eq("user_id", getProfileId())
                 .eq("post_id", pid)
@@ -98,7 +101,7 @@ public class PostController extends BaseController{
     @PostMapping("/collection/remove/")
     public Result collectionRemove(Long pid) {
         Post post = postService.getById(pid);
-        Assert.isTrue(post != null, "改帖子已被删除");
+        Assert.isTrue(post != null, "该帖子已被删除");
 
         collectionService.remove(new QueryWrapper<UserCollection>()
                 .eq("user_id", getProfileId())
@@ -112,7 +115,7 @@ public class PostController extends BaseController{
         String id = req.getParameter("id");
         if(!StringUtils.isEmpty(id)) {
             Post post = postService.getById(id);
-            Assert.isTrue(post != null, "改帖子已被删除");
+            Assert.isTrue(post != null, "该帖子已被删除");
             Assert.isTrue(post.getUserId().longValue() == getProfileId().longValue(), "没权限操作此文章");
             req.setAttribute("post", post);
         }
@@ -210,7 +213,7 @@ public class PostController extends BaseController{
 
         // 通知作者，有人评论了你的文章
         // 作者自己评论自己文章，不需要通知
-        if(comment.getUserId() != post.getUserId()) {
+        if(!comment.getUserId().equals(post.getUserId())) {
             UserMessage message = new UserMessage();
             message.setPostId(jid);
             message.setCommentId(comment.getId());
@@ -226,11 +229,11 @@ public class PostController extends BaseController{
             wsService.sendMessCountToUser(message.getToUserId());
         }
 
-        // 通知被@的人，有人回复了你的文章
-        if(content.startsWith("@")) {
-            String username = content.substring(1, content.indexOf(" "));
-            System.out.println(username);
-
+        // 通知被@的人，有人回复了你的文章(修复@在中间时的情况)
+        Pattern pattern = Pattern.compile("@[^\\s]*");
+        Matcher m = pattern.matcher(content);
+        while(m.find()) {
+            String username = m.group().substring(1);
             User user = userService.getOne(new QueryWrapper<User>().eq("username", username));
             if(user != null) {
                 UserMessage message = new UserMessage();
@@ -244,7 +247,8 @@ public class PostController extends BaseController{
                 message.setStatus(0);
                 messageService.save(message);
 
-                // 即时通知被@的用户
+                //即时通知被@的用户
+                wsService.sendMessCountToUser(message.getToUserId());
             }
         }
         return Result.success().action("/post/" + post.getId());

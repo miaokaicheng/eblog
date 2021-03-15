@@ -26,12 +26,12 @@
       </p>
 
       <p class="fly-home-sign">（${user.sign!'这个人好懒，什么都没留下！'}）</p>
-
-      <div class="fly-sns" data-user="">
-          <a href="javascript:;" class="layui-btn layui-btn-primary fly-imActive" data-type="addFriend">加为好友</a>
-          <a href="javascript:;" class="layui-btn layui-btn-normal fly-imActive" data-type="chat">发起会话</a>
-      </div>
-
+      <#if user.id != myId>
+          <div class="fly-sns" data-user="${user.id}">
+              <#--<a class="layui-btn layui-btn-primary fly-imActive" data-type="addFriend">加为好友</a>-->
+              <a class="layui-btn layui-btn-normal fly-imActive" type="chat" data-type="chat">发起会话</a>
+          </div>
+      </#if>
   </div>
 
   <div class="layui-container">
@@ -61,11 +61,28 @@
               <div class="fly-panel">
                   <h3 class="fly-panel-title">${user.username} 最近的回答</h3>
                   <ul class="home-jieda">
-                      <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div>
+                      <#list replys as reply>
+                          <li>
+                              <a href="/post/${reply.postId}" class="jie-title"> ${reply.content}</a>
+                              <i>${timeAgo(reply.created)}</i>
+                          </li>
+                      </#list>
+                      <#if !replys>
+                          <#--<div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;">
+                              <i style="font-size:14px;">没有发表任何求解</i>
+                          </div>-->
+                          <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div>
+                      </#if>
+
                   </ul>
               </div>
           </div>
       </div>
   </div>
-
+    <script>
+        $(function () {
+            layui.use(['fly','friend'], function() {
+            });
+        });
+    </script>
 </@layout>

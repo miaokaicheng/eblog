@@ -47,6 +47,9 @@ public class BaseController {
     @Autowired
     ChatService chatService;
 
+    @Autowired
+    MUserFriendService friendService;
+
     public Page getPage() {
         int pn = ServletRequestUtils.getIntParameter(req, "pn", 1);
         int size = ServletRequestUtils.getIntParameter(req, "size", 2);

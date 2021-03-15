@@ -65,7 +65,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
         // 获取7天的发表的文章
         List<Post> posts = this.list(new QueryWrapper<Post>()
-                .ge("created", DateUtil.offsetDay(new Date(), -7)) // 11号
+                .ge("created", DateUtil.offsetDay(new Date(), -7))
                 .select("id, title, user_id, comment_count, view_count, created")
         );
 

@@ -40,11 +40,11 @@
           </span>
                 </div>
                 <div class="detail-about">
-                    <a class="fly-avatar" href="/user/${post.authorId}">
+                    <a class="fly-avatar" href="/user/home/${post.authorId}">
                         <img src="${post.authorAvatar}" alt="${post.authorName}">
                     </a>
                     <div class="fly-detail-user">
-                        <a href="/user/${post.authorId}"" class="fly-link">
+                        <a href="/user/home/${post.authorId}" class="fly-link">
                             <cite>${post.authorName}</cite>
                         </a>
                         <span>${timeAgo(post.created)}</span>
@@ -70,15 +70,15 @@
                         <li data-id="${comment.id}" class="jieda-daan">
                         <a name="item-${comment.id}"></a>
                         <div class="detail-about detail-about-reply">
-                            <a class="fly-avatar" href="/user/${post.authorId}">
+                            <a class="fly-avatar" href="/user/home/${comment.authorId}">
                                 <img src="${comment.authorAvatar}" alt="${comment.authorName}">
                             </a>
                             <div class="fly-detail-user">
-                                <a href="/user/${comment.authorId}" class="fly-link">
+                                <a href="/user/home/${comment.authorId}" class="fly-link">
                                     <cite>${comment.authorName}</cite>
                                 </a>
 
-                                <#if comment.user_id == post.user_id>
+                                <#if comment.authorId == post.userId>
                                 <span>(楼主)</span>
                                 </#if>
                             </div>
